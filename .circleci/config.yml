@@ -30,7 +30,6 @@ jobs:
     docker:
       - image: python:3.6
     steps:
-      - checkout
       - run:
           command: |
             echo "This is an integration step"
