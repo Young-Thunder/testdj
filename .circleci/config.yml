@@ -3,8 +3,11 @@ jobs:
     docker:
       - image: python:3.6
     steps:
-      - checkout
-      - run: |
+      - name: Checkout
+        uses: actions/checkout@v2  # Use the official checkout action
+
+      - name: Install dependencies and check
+        run: |
           pip install -r requirements.txt
           python manage.py check
 
@@ -12,16 +15,22 @@ jobs:
     docker:
       - image: python:3.6
     steps:
-      - checkout
-      - run: |
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install dependencies and run tests
+        run: |
           pip install -r requirements.txt
           python manage.py test taskManager
 
   release:
     machine: true
     steps:
-      - checkout
-      - run: |
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker registry and push
+        run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
           docker build -t $DOCKER_USERNAME/django.nv .
           docker push $DOCKER_USERNAME/django.nv
@@ -30,19 +39,24 @@ jobs:
     docker:
       - image: python:3.6
     steps:
-      - checkout
-      - run:
-          command: |
-            echo "This is an integration step"
-            exit 1
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run integration step
+        run: |
+          echo "This is an integration step"
+          exit 1
       when: always  # Correct indentation
 
   prod:
     docker:
       - image: python:3.6
     steps:
-      - checkout
-      - run: echo "This is a deploy step."
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Deploy to production
+        run: echo "This is a deploy step."
 
 workflows:
   version: 2
