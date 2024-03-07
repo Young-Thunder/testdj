@@ -41,7 +41,6 @@ jobs:
     docker:
       - image: python:3.6
     steps:
-      - checkout
       - run: echo "This is a deploy step."
 
 workflows:
