@@ -1,13 +1,11 @@
+cat >.circleci/config.yml<<EOF
 jobs:
   build:
     docker:
-      - image: python:3.6
+      - image: python:3.6                   # similar to "image" in GitLab
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2  # Use the official checkout action
-
-      - name: Install dependencies and check
-        run: |
+      - checkout
+      - run: |                              # similar to "script" in GitLab
           pip install -r requirements.txt
           python manage.py check
 
@@ -15,48 +13,28 @@ jobs:
     docker:
       - image: python:3.6
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install dependencies and run tests
-        run: |
+      - checkout
+      - run: |
           pip install -r requirements.txt
           python manage.py test taskManager
-
-  release:
-    machine: true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Log in to Docker registry and push
-        run: |
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-          docker build -t $DOCKER_USERNAME/django.nv .
-          docker push $DOCKER_USERNAME/django.nv
 
   integration:
     docker:
       - image: python:3.6
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Run integration step
-        run: |
-          echo "This is an integration step"
-          exit 1
-      when: always  # Correct indentation
+      - checkout
+      - run:
+          command: |
+            echo "This is an integration step"
+            exit 1
+          when: always                    # Even if the job fails, continue to the next stages
 
   prod:
     docker:
       - image: python:3.6
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Deploy to production
-        run: echo "This is a deploy step."
+      - checkout
+      - run: echo "This is a deploy step."
 
 workflows:
   version: 2
@@ -73,3 +51,4 @@ workflows:
           type: approval
           requires:
             - integration
+EOF
