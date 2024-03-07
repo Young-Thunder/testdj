@@ -1,10 +1,12 @@
 jobs:
   build:
     docker:
-      - image: python:3.6                   # similar to "image" in GitLab
+      - image: python:3.6
     steps:
-      - checkout
-      - run: |                              # similar to "script" in GitLab
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install dependencies and check
+        run: |
           pip install -r requirements.txt
           python manage.py check
 
@@ -12,37 +14,42 @@ jobs:
     docker:
       - image: python:3.6
     steps:
-      - checkout
-      - run: |
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install dependencies and run tests
+        run: |
           pip install -r requirements.txt
           python manage.py test taskManager
 
   release:
-    machine: true                                        # What is this for?
+    machine: true
     steps:
-      - checkout
-
-      - run: |
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Log in to Docker registry and push
+        run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-          docker build -t $DOCKER_USERNAME/django.nv .   # Build the application into Docker image
-          docker push $DOCKER_USERNAME/django.nv         # Push the image into registry
+          docker build -t $DOCKER_USERNAME/django.nv .
+          docker push $DOCKER_USERNAME/django.nv
 
   integration:
     docker:
       - image: python:3.6
     steps:
-      - checkout
-      - run:
-          command: |
-            echo "This is an integration step"
-                           # Even if the job fails, continue to the next stages
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run integration step
+        run: |
+          echo "This is an integration step"
 
   prod:
     docker:
       - image: python:3.6
     steps:
-      - checkout
-      - run: echo "This is a deploy step."
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Deploy to production
+        run: echo "This is a deploy step."
 
 workflows:
   version: 2
